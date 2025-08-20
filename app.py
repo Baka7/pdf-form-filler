@@ -49,27 +49,30 @@ if uploaded_file:
     st.subheader("💬 Fill the Form Fields Below")
 
     # Render UI per field type
-    for field in field_list:
+    for i, field in enumerate(field_list):
         label = f"**{field['name']}**"
         if field["required"]:
             label += " (Required)"
 
         default_val = st.session_state.answers.get(field["name"], field["value"])
 
+        # Construct a unique key for each input element
+        unique_key = f"{field['type']}_{field['name']}_{i}"
+
         if field["type"] == "CheckBox":
             on_val = field.get("on_state_value") or "Yes"
             checked = default_val == on_val
-            checked_new = st.checkbox(label, value=checked)
+            checked_new = st.checkbox(label, value=checked, key=unique_key)
             st.session_state.answers[field["name"]] = on_val if checked_new else "Off"
 
         elif field["type"] in ["ComboBox", "ListBox"]:
             options = field["choices"] if field["choices"] else [""]
             default_index = options.index(default_val) if default_val in options else 0
-            selected = st.selectbox(label, options, index=default_index)
+            selected = st.selectbox(label, options, index=default_index, key=unique_key)
             st.session_state.answers[field["name"]] = selected
 
         else:
-            val = st.text_input(label, value=default_val or "")
+            val = st.text_input(label, value=default_val or "", key=unique_key)
             st.session_state.answers[field["name"]] = val
 
     # ==== Fill and download button ====
